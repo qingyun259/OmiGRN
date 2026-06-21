@@ -30,7 +30,7 @@ omigrn_main/
 ├── example_data/            # small anonymized runnable subset (100 samples)
 │   ├── geno.txt             # genotype
 │   ├── trans.txt            # transcriptome
-│   ├── pheno.txt            # phenotype:     
+│   ├── pheno.txt            # phenotype    
 │   └── network_all.csv      # GRN edges
 ├── GRN_Script/              # build the GRN edge list (WGCNA + GRNBoost2)
 │   ├── run_wgcna_modules.R                # step 1: WGCNA co-expression modules
