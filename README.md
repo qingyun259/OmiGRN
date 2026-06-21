@@ -27,6 +27,11 @@ omigrn_main/
 │   ├── model.py             # OmiGRN dual-branch model (fusion + MLP head)
 │   ├── data.py              # genotype / transcriptome / phenotype loading
 │   └── trainer.py           # k-fold cross-validation training
+├── example_data/            # small anonymized runnable subset (100 samples)
+│   ├── geno.txt             # genotype
+│   ├── trans.txt            # transcriptome
+│   ├── pheno.txt            # phenotype:     
+│   └── network_all.csv      # GRN edges
 ├── GRN_Script/              # build the GRN edge list (WGCNA + GRNBoost2)
 │   ├── run_wgcna_modules.R                # step 1: WGCNA co-expression modules
 │   └── infer_grn_grnboost2_by_module.py   # step 2: module-wise GRNBoost2
