@@ -1,4 +1,3 @@
-
 import os
 import re
 import argparse
@@ -121,10 +120,10 @@ def write_list(path: str, items: list[str]) -> None:
 
 def load_gene_modules(path: str) -> pd.DataFrame:
     if not os.path.isfile(path):
-        raise FileNotFoundError(f"gene_modules 文件不存在：{path}")
+        raise FileNotFoundError(f"gene_modules file not found: {path}")
     m = read_table_auto(path, sep=MODULE_SEP, index_col=None)
     if MODULE_GENE_COL not in m.columns or MODULE_COL not in m.columns:
-        raise ValueError(f"gene_modules 文件需包含列：{MODULE_GENE_COL}, {MODULE_COL}")
+        raise ValueError(f"gene_modules file must contain columns: {MODULE_GENE_COL}, {MODULE_COL}")
     m = m[[MODULE_GENE_COL, MODULE_COL]].dropna()
     m[MODULE_GENE_COL] = m[MODULE_GENE_COL].astype(str).map(normalize_gene_id)
     m[MODULE_COL] = m[MODULE_COL].astype(str)
@@ -170,35 +169,35 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description="Infer a module-aware GRN with GRNBoost2 (WGCNA modules + PlantTFDB TFs)."
     )
-    p.add_argument("--expr", required=True, help="表达矩阵（行=样本，列=基因，第一列样本ID）。")
-    p.add_argument("--tf-list", required=True, help="TF 列表文件（已映射到 gene ID）。")
-    p.add_argument("--gene-modules", required=True, help="WGCNA 输出的 gene_modules.tsv（含 GeneID, Module 两列）。")
-    p.add_argument("--outdir", required=True, help="输出目录。")
-    p.add_argument("--expr-sep", default=EXPR_SEP, help="表达矩阵分隔符（默认制表符）。")
-    p.add_argument("--tf-sep", default=TF_SEP, help="TF 文件分隔符（默认制表符）。")
-    p.add_argument("--tf-id-column", default=TF_ID_COLUMN, help="TF 文件中基因ID所在列名（默认自动识别）。")
-    p.add_argument("--module-sep", default=MODULE_SEP, help="gene_modules 文件分隔符（默认制表符）。")
-    p.add_argument("--sample-meta", default="", help="可选样本元数据文件（含样本列与组织列）。")
-    p.add_argument("--meta-sample-col", default=META_SAMPLE_COL, help="元数据中的样本列名。")
-    p.add_argument("--meta-tissue-col", default=META_TISSUE_COL, help="元数据中的组织/分组列名。")
-    p.add_argument("--workers", type=int, default=N_WORKERS, help="Dask worker 数。")
-    p.add_argument("--threads-per-worker", type=int, default=THREADS_PER_WORKER, help="每个 worker 的线程数。")
-    p.add_argument("--min-nonzero-frac", type=float, default=MIN_NONZERO_FRAC, help="基因保留所需非零样本比例。")
-    p.add_argument("--min-nonzero-abs", type=int, default=MIN_NONZERO_ABS, help="基因保留所需非零样本数下限。")
-    p.add_argument("--top-hv-genes", type=int, default=TOP_HV_GENES, help="保留高变基因数；0 表示不做高变筛选。")
-    p.add_argument("--min-module-size", type=int, default=MIN_MODULE_SIZE, help="参与建网的最小模块基因数。")
-    p.add_argument("--no-float32", action="store_true", help="关闭 float32（改用 float64）。")
-    p.add_argument("--tf-scope", choices=["all", "module"], default=TF_SCOPE, help="模块内推断时的 TF 候选范围。")
-    p.add_argument("--edge-filter-mode", choices=["global_topE", "per_target_topk"], default=EDGE_FILTER_MODE, help="边筛选策略。")
-    p.add_argument("--topk-per-target", type=int, default=TOPK_PER_TARGET, help="per_target_topk 模式下每个 target 的入边数。")
-    p.add_argument("--top-edges", type=int, default=TOP_EDGES, help="全局边数上限；0 表示不限制。")
-    p.add_argument("--edge-weight-transform", choices=["none", "log1p", "rank_in_target"], default=EDGE_WEIGHT_TRANSFORM, help="边权变换方式。")
-    p.add_argument("--write-per-module", action="store_true", help="额外保存每个模块的网络文件。")
+    p.add_argument("--expr", required=True, help="Expression matrix (rows=samples, cols=genes, first column=sample ID).")
+    p.add_argument("--tf-list", required=True, help="TF list file (already mapped to gene IDs).")
+    p.add_argument("--gene-modules", required=True, help="gene_modules.tsv from WGCNA (with GeneID, Module columns).")
+    p.add_argument("--outdir", required=True, help="Output directory.")
+    p.add_argument("--expr-sep", default=EXPR_SEP, help="Expression matrix separator (default: tab).")
+    p.add_argument("--tf-sep", default=TF_SEP, help="TF file separator (default: tab).")
+    p.add_argument("--tf-id-column", default=TF_ID_COLUMN, help="Gene-ID column name in the TF file (default: auto-detect).")
+    p.add_argument("--module-sep", default=MODULE_SEP, help="gene_modules file separator (default: tab).")
+    p.add_argument("--sample-meta", default="", help="Optional sample metadata file (with sample and tissue columns).")
+    p.add_argument("--meta-sample-col", default=META_SAMPLE_COL, help="Sample column name in the metadata.")
+    p.add_argument("--meta-tissue-col", default=META_TISSUE_COL, help="Tissue/group column name in the metadata.")
+    p.add_argument("--workers", type=int, default=N_WORKERS, help="Number of Dask workers.")
+    p.add_argument("--threads-per-worker", type=int, default=THREADS_PER_WORKER, help="Threads per worker.")
+    p.add_argument("--min-nonzero-frac", type=float, default=MIN_NONZERO_FRAC, help="Min fraction of nonzero samples to keep a gene.")
+    p.add_argument("--min-nonzero-abs", type=int, default=MIN_NONZERO_ABS, help="Min number of nonzero samples to keep a gene.")
+    p.add_argument("--top-hv-genes", type=int, default=TOP_HV_GENES, help="Number of highly-variable genes to keep; 0 disables HV filtering.")
+    p.add_argument("--min-module-size", type=int, default=MIN_MODULE_SIZE, help="Minimum module size (genes) to include in inference.")
+    p.add_argument("--no-float32", action="store_true", help="Disable float32 (use float64).")
+    p.add_argument("--tf-scope", choices=["all", "module"], default=TF_SCOPE, help="Candidate TF scope for within-module inference.")
+    p.add_argument("--edge-filter-mode", choices=["global_topE", "per_target_topk"], default=EDGE_FILTER_MODE, help="Edge filtering strategy.")
+    p.add_argument("--topk-per-target", type=int, default=TOPK_PER_TARGET, help="Incoming edges kept per target in per_target_topk mode.")
+    p.add_argument("--top-edges", type=int, default=TOP_EDGES, help="Global cap on the number of edges; 0 means no cap.")
+    p.add_argument("--edge-weight-transform", choices=["none", "log1p", "rank_in_target"], default=EDGE_WEIGHT_TRANSFORM, help="Edge-weight transform.")
+    p.add_argument("--write-per-module", action="store_true", help="Also save a per-module network file.")
     return p.parse_args()
 
 
 def _apply_args(args: argparse.Namespace) -> None:
-    """把命令行参数写回模块级配置（供上面的工具函数读取）。"""
+    """Write CLI arguments back into the module-level config used by the helpers above."""
     global INPUT_EXPR, EXPR_SEP, TF_LIST_FILE, TF_SEP, TF_ID_COLUMN
     global GENE_MODULE_FILE, MODULE_SEP, SAMPLE_META_FILE, META_SAMPLE_COL, META_TISSUE_COL
     global OUTDIR, N_WORKERS, THREADS_PER_WORKER
@@ -237,16 +236,16 @@ def main():
 
     ensure_outdir(OUTDIR)
 
-    print("读取表达矩阵...")
+    print("Reading expression matrix...")
     df = read_table_auto(INPUT_EXPR, sep=EXPR_SEP, index_col=0)
     df = clean_duplicates(df)
     if USE_FLOAT32:
         df = df.astype(np.float32)
 
     df = collapse_to_gene_level(df)
-    print(f"Gene-level 矩阵维度: {df.shape} (Samples x Genes)")
+    print(f"Gene-level matrix shape: {df.shape} (Samples x Genes)")
 
-    print("读取 TF 列表...")
+    print("Reading TF list...")
     tf_all = load_tf_list(TF_LIST_FILE, sep=TF_SEP, id_col=TF_ID_COLUMN)
     tf_all_set = set(tf_all.tolist())
 
@@ -266,17 +265,17 @@ def main():
     write_list(os.path.join(OUTDIR, "TF_low_expr.txt"), tf_low_expr)
     write_list(os.path.join(OUTDIR, "TF_missing.txt"), tf_missing)
 
-    print(f"TF 总数(归一化): {len(tf_all_set)} | 匹配到矩阵: {len(tf_present)} | 缺失: {len(tf_missing)}")
-    print(f"TF 低表达(<{min_nz}样本>0): {len(tf_low_expr)} | 可用 TF: {len(tf_good)}")
+    print(f"TFs total (normalized): {len(tf_all_set)} | matched in matrix: {len(tf_present)} | missing: {len(tf_missing)}")
+    print(f"TFs low-expression (<{min_nz} samples >0): {len(tf_low_expr)} | usable TFs: {len(tf_good)}")
 
     df = filter_low_expression_genes(df, min_nz=min_nz, force_keep=set(tf_good))
     df = select_highly_variable_genes(df, top_n=TOP_HV_GENES, force_keep=set(tf_good))
-    print(f"过滤后用于建网的基因数: {df.shape[1]}")
+    print(f"Genes used for inference after filtering: {df.shape[1]}")
 
     mods = load_gene_modules(GENE_MODULE_FILE)
     mods = mods[mods[MODULE_GENE_COL].isin(set(df.columns))].copy()
     if mods.empty:
-        raise ValueError("模块文件与表达矩阵（过滤后）没有任何基因交集，请检查 ID 归一化/过滤阈值。")
+        raise ValueError("No gene overlap between the modules file and the (filtered) expression matrix; check ID normalization / filtering thresholds.")
 
     meta = load_sample_meta(SAMPLE_META_FILE)
     groups: dict[str, pd.DataFrame] = {}
@@ -302,14 +301,14 @@ def main():
     try:
         cluster = LocalCluster(n_workers=N_WORKERS, threads_per_worker=THREADS_PER_WORKER)
         client = Client(cluster)
-        print("Dask 启动成功。")
+        print("Dask started.")
 
         for gname, gdf in groups.items():
-            print(f"\n=== 组: {gname} | samples={gdf.shape[0]} genes={gdf.shape[1]} ===")
+            print(f"\n=== group: {gname} | samples={gdf.shape[0]} genes={gdf.shape[1]} ===")
 
             tf_names_all = sorted(set(tf_good) & set(gdf.columns))
             if len(tf_names_all) == 0:
-                print(f"[{gname}] 无可用 TF，跳过。")
+                print(f"[{gname}] no usable TFs, skipping.")
                 continue
 
             all_edges = []
@@ -338,7 +337,7 @@ def main():
                     net_m.sort_values("Importance", ascending=False).to_csv(out_m, index=False)
 
             if not all_edges:
-                print(f"[{gname}] 没有得到任何模块网络。")
+                print(f"[{gname}] no module networks produced.")
                 continue
 
             net = pd.concat(all_edges, ignore_index=True)
@@ -350,12 +349,12 @@ def main():
             net = net.sort_values("Importance", ascending=False)
             out_csv = os.path.join(OUTDIR, f"network_{gname}.csv")
             net.to_csv(out_csv, index=False)
-            print(f"[{gname}] 输出：{out_csv} | edges={len(net)}")
+            print(f"[{gname}] wrote: {out_csv} | edges={len(net)}")
 
-        print("\n全部完成。")
+        print("\nAll done.")
 
     except Exception as e:
-        print(f"运行出错: {e}")
+        print(f"Error: {e}")
         traceback.print_exc()
 
     finally:
