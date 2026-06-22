@@ -53,7 +53,7 @@ colnames(datExpr) <- gsub("^(gene[:：]|Gene[:：]|transcript[:：]|Transcript[:
 if (toupper(do_log1p) == "TRUE") {
   mat <- as.matrix(datExpr)
   if (min(mat, na.rm = TRUE) < 0) {
-    message("[WARN] 检测到负值，跳过 log1p。")
+    message("[WARN] negative values detected, skipping log1p.")
   } else {
     datExpr <- log1p(datExpr)
   }
